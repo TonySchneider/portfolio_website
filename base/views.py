@@ -1,23 +1,29 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+import os
+import json
+import telebot
+import logging
+
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.mail import EmailMessage
-from django.conf import settings
-from django.template.loader import render_to_string
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
-from django.contrib.auth.forms import UserCreationForm
+
 from .decorators import *
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import PostForm, CustomUserCreationForm, ProfileForm, UserForm
 from .filters import PostFilter
 
 from .models import *
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
 # Create your views here.
+
 
 def home(request):
     posts = Post.objects.filter(active=True, featured=True)[0:3]
@@ -212,3 +218,36 @@ def updateProfile(request):
 
     context = {'form': form}
     return render(request, 'base/profile_form.html', context)
+
+
+# # Retrieve environment variables
+# TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+# CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+#
+# bot = telebot.TeleBot(TOKEN, parse_mode=None)
+#
+#
+# @csrf_exempt  # Disable CSRF protection for this view if it's an external API
+# @require_http_methods(["POST"])  # Only allow POST requests
+# def trading_view_alert(request):
+#     try:
+#         # Attempt to decode and load the JSON data from the request
+#         data = json.loads(request.body.decode('utf-8'))
+#         message_text = json.dumps(data, indent=2)
+#         logging.info("Received alert data: %s", message_text)
+#
+#         # Use the chat ID from environment variables
+#         bot.send_message(CHAT_ID, message_text)
+#         logging.info("Message sent to Telegram successfully")
+#
+#         return JsonResponse({"status": "success", "message": "Alert received and sent to Telegram"}, status=200)
+#
+#     except json.JSONDecodeError as e:
+#         logging.error("Failed to decode JSON data: %s", e)
+#         return JsonResponse({"status": "error", "message": "Invalid JSON data"}, status=400)
+#
+#     except Exception as e:
+#         logging.error("An error occurred: %s", e)
+#         return JsonResponse({"status": "error", "message": "An error occurred while processing the request"}, status=500)
+#
+#

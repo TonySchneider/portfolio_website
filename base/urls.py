@@ -22,4 +22,5 @@ urlpatterns = [
 
 	path('account/', views.userAccount, name="account"),
 	path('update_profile/', views.updateProfile, name="update_profile"),
+	# path('trading-view-alert', views.trading_view_alert, name='trading-view-alert'),
 ]
